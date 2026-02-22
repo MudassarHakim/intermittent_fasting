@@ -11,6 +11,7 @@ import '../providers/timer_provider.dart';
 import '../providers/history_provider.dart';
 import '../widgets/circular_progress.dart';
 import '../widgets/fasting_share_card.dart';
+import '../widgets/metabolic_timeline.dart';
 
 class TimerScreen extends ConsumerStatefulWidget {
   const TimerScreen({super.key});
@@ -178,116 +179,111 @@ class _ActiveTimerView extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = timerState.activeSession!;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Plan label
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTheme.fasting.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppTheme.fasting,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Fasting · ${session.planName}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.fasting,
-                    ),
-                  ),
-                ],
-              ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          // Plan label
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.fasting.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 40),
-
-            // Circular progress
-            CircularProgress(
-              progress: timerState.progress,
-              size: 280,
-              strokeWidth: 14,
-              gradientColors: const [
-                AppTheme.primary,
-                AppTheme.accent,
-                AppTheme.secondary,
-              ],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    AppUtils.formatDuration(timerState.remaining),
-                    style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.textPrimary,
-                      letterSpacing: 2,
-                    ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.fasting,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'remaining',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Elapsed time
-            Text(
-              '${AppUtils.formatDurationShort(timerState.elapsed)} elapsed',
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppTheme.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Progress percentage
-            Text(
-              '${(timerState.progress * 100).toStringAsFixed(1)}% complete',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primary.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            // End Fast button
-            OutlinedButton.icon(
-              onPressed: onCancel,
-              icon: const Icon(Icons.stop_rounded),
-              label: const Text('End Fast'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.error,
-                side: BorderSide(color: AppTheme.error.withValues(alpha: 0.3)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
                 ),
+                const SizedBox(width: 8),
+                Text(
+                  'Fasting · ${session.planName}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.fasting,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Circular progress
+          CircularProgress(
+            progress: timerState.progress,
+            size: 240,
+            strokeWidth: 14,
+            gradientColors: const [
+              AppTheme.primary,
+              AppTheme.accent,
+              AppTheme.secondary,
+            ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  AppUtils.formatDuration(timerState.remaining),
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'remaining',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          Text(
+            '${AppUtils.formatDurationShort(timerState.elapsed)} elapsed · ${(timerState.progress * 100).toStringAsFixed(1)}%',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primary.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ─── Metabolic Timeline ─────────────────────────
+          MetabolicTimeline(
+            elapsed: timerState.elapsed,
+            targetHours: session.fastHours,
+          ),
+          const SizedBox(height: 32),
+
+          // End Fast button
+          OutlinedButton.icon(
+            onPressed: onCancel,
+            icon: const Icon(Icons.stop_rounded),
+            label: const Text('End Fast'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.error,
+              side: BorderSide(color: AppTheme.error.withValues(alpha: 0.3)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

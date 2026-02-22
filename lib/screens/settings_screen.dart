@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../app/theme.dart';
 import '../providers/settings_provider.dart';
 import '../providers/history_provider.dart';
@@ -149,6 +150,94 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
+            // ─── Science & Insights ────────────────────────
+            const _SectionTitle(title: 'Science & Insights'),
+            const SizedBox(height: 12),
+
+            _SettingsTile(
+              icon: Icons.science_rounded,
+              title: 'Metabolic Phases',
+              subtitle: 'Show metabolic phase timeline on timer',
+              trailing: Switch(
+                value: settings.showMetabolicPhases,
+                onChanged: (_) {
+                  ref.read(settingsProvider.notifier).toggleMetabolicPhases();
+                },
+                activeThumbColor: AppTheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            _SettingsTile(
+              icon: Icons.emoji_events_rounded,
+              title: 'Milestone Alerts',
+              subtitle: 'Notify at metabolic milestones during fasts',
+              trailing: Switch(
+                value: settings.milestoneNotifications,
+                onChanged: (_) {
+                  ref
+                      .read(settingsProvider.notifier)
+                      .toggleMilestoneNotifications();
+                },
+                activeThumbColor: AppTheme.primary,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            _SettingsTile(
+              icon: Icons.mosque_rounded,
+              title: 'Ramadan Mode',
+              subtitle: 'Auto-calculate fasting windows with sunrise/sunset',
+              trailing: Switch(
+                value: settings.ramadanModeEnabled,
+                onChanged: (_) {
+                  ref.read(settingsProvider.notifier).toggleRamadanMode();
+                },
+                activeThumbColor: AppTheme.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // ─── Fasting Goal ──────────────────────────────
+            const _SectionTitle(title: 'Fasting Goal'),
+            const SizedBox(height: 12),
+
+            _GoalSelector(
+              currentGoal: settings.fastingGoal,
+              onGoalChanged: (goal) {
+                ref.read(settingsProvider.notifier).setFastingGoal(goal);
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // ─── Tracking ──────────────────────────────────
+            const _SectionTitle(title: 'Tracking'),
+            const SizedBox(height: 12),
+
+            _SettingsTile(
+              icon: Icons.monitor_weight_rounded,
+              title: 'Body Metrics',
+              subtitle: 'Track weight, body fat, and measurements',
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textMuted,
+              ),
+              onTap: () => context.push('/body-metrics'),
+            ),
+            const SizedBox(height: 8),
+
+            _SettingsTile(
+              icon: Icons.restaurant_menu_rounded,
+              title: 'Meal Journal',
+              subtitle: 'Log post-fast meals and quality',
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textMuted,
+              ),
+              onTap: () => context.push('/meal-journal'),
+            ),
+            const SizedBox(height: 24),
+
             // ─── Data ──────────────────────────────────────
             const _SectionTitle(title: 'Data'),
             const SizedBox(height: 12),
@@ -169,6 +258,54 @@ class SettingsScreen extends ConsumerWidget {
             const _SectionTitle(title: 'About'),
             const SizedBox(height: 12),
 
+            _SettingsTile(
+              icon: Icons.health_and_safety_rounded,
+              title: 'Health Disclaimer',
+              subtitle: 'View our health and safety notice',
+              trailing: const Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textMuted,
+              ),
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: AppTheme.surfaceCard,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (_) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Health Disclaimer',
+                            style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'This app is for informational and tracking purposes only. '
+                          'It does not provide medical advice, diagnosis, or treatment. '
+                          'Always consult a healthcare professional before starting any fasting regimen.',
+                          style: TextStyle(
+                              color: AppTheme.textSecondary, height: 1.5),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Got It'),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
             const _SettingsTile(
               icon: Icons.info_outline_rounded,
               title: 'Version',
@@ -466,6 +603,88 @@ class _IAPOption extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Goal Selector ──────────────────────────────────────────
+class _GoalSelector extends StatelessWidget {
+  final String currentGoal;
+  final ValueChanged<String> onGoalChanged;
+
+  const _GoalSelector({
+    required this.currentGoal,
+    required this.onGoalChanged,
+  });
+
+  static const _goals = [
+    {'id': 'fat_loss', 'label': 'Fat Loss', 'icon': Icons.whatshot_rounded},
+    {
+      'id': 'metabolic_health',
+      'label': 'Metabolic Health',
+      'icon': Icons.favorite_rounded,
+    },
+    {
+      'id': 'autophagy',
+      'label': 'Autophagy',
+      'icon': Icons.auto_fix_high_rounded,
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: _goals.map((goal) {
+        final isSelected = currentGoal == goal['id'];
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: goal != _goals.last ? 8 : 0,
+            ),
+            child: GestureDetector(
+              onTap: () => onGoalChanged(goal['id'] as String),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppTheme.primary.withValues(alpha: 0.12)
+                      : AppTheme.surfaceCard,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppTheme.primary.withValues(alpha: 0.5)
+                        : AppTheme.textMuted.withValues(alpha: 0.1),
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      goal['icon'] as IconData,
+                      color: isSelected
+                          ? AppTheme.primary
+                          : AppTheme.textMuted,
+                      size: 22,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      goal['label'] as String,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? AppTheme.primary
+                            : AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

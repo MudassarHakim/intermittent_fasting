@@ -7,6 +7,8 @@ import '../core/utils.dart';
 import '../providers/timer_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/health_disclaimer.dart';
+import '../widgets/insight_card.dart';
 import '../widgets/plan_card.dart';
 import '../widgets/streak_badge.dart';
 
@@ -18,6 +20,14 @@ class HomeScreen extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final timerState = ref.watch(timerProvider);
     final history = ref.watch(historyProvider);
+
+    if (!settings.hasAcceptedDisclaimer) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        HealthDisclaimer.show(context, () {
+          ref.read(settingsProvider.notifier).acceptDisclaimer();
+        });
+      });
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -117,6 +127,14 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+
+            // ─── Daily Insight ───────────────────────────────
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: InsightCard(),
+              ),
+            ),
 
             // ─── Section Title ──────────────────────────────
             SliverToBoxAdapter(

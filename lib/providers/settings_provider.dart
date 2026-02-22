@@ -5,49 +5,65 @@ import '../services/storage_service.dart';
 class SettingsNotifier extends StateNotifier<UserSettings> {
   SettingsNotifier() : super(StorageService.getSettings());
 
-  void updatePlan(String planId) {
-    state = UserSettings(
-      selectedPlanId: planId,
-      notificationsEnabled: state.notificationsEnabled,
-      isPremium: state.isPremium,
-      customFastHours: state.customFastHours,
-      customEatHours: state.customEatHours,
+  UserSettings _copyWith({
+    String? selectedPlanId,
+    bool? notificationsEnabled,
+    bool? isPremium,
+    int? customFastHours,
+    int? customEatHours,
+    bool? hasAcceptedDisclaimer,
+    bool? ramadanModeEnabled,
+    String? fastingGoal,
+    bool? showMetabolicPhases,
+    bool? milestoneNotifications,
+  }) {
+    return UserSettings(
+      selectedPlanId: selectedPlanId ?? state.selectedPlanId,
+      notificationsEnabled: notificationsEnabled ?? state.notificationsEnabled,
+      isPremium: isPremium ?? state.isPremium,
+      customFastHours: customFastHours ?? state.customFastHours,
+      customEatHours: customEatHours ?? state.customEatHours,
+      hasAcceptedDisclaimer:
+          hasAcceptedDisclaimer ?? state.hasAcceptedDisclaimer,
+      ramadanModeEnabled: ramadanModeEnabled ?? state.ramadanModeEnabled,
+      fastingGoal: fastingGoal ?? state.fastingGoal,
+      showMetabolicPhases: showMetabolicPhases ?? state.showMetabolicPhases,
+      milestoneNotifications:
+          milestoneNotifications ?? state.milestoneNotifications,
     );
-    StorageService.saveSettings(state);
   }
 
-  void toggleNotifications() {
-    state = UserSettings(
-      selectedPlanId: state.selectedPlanId,
-      notificationsEnabled: !state.notificationsEnabled,
-      isPremium: state.isPremium,
-      customFastHours: state.customFastHours,
-      customEatHours: state.customEatHours,
-    );
-    StorageService.saveSettings(state);
+  void _save(UserSettings s) {
+    state = s;
+    StorageService.saveSettings(s);
   }
 
-  void setCustomHours(int fastHours, int eatHours) {
-    state = UserSettings(
-      selectedPlanId: state.selectedPlanId,
-      notificationsEnabled: state.notificationsEnabled,
-      isPremium: state.isPremium,
-      customFastHours: fastHours,
-      customEatHours: eatHours,
-    );
-    StorageService.saveSettings(state);
-  }
+  void updatePlan(String planId) =>
+      _save(_copyWith(selectedPlanId: planId));
 
-  void setPremium(bool premium) {
-    state = UserSettings(
-      selectedPlanId: state.selectedPlanId,
-      notificationsEnabled: state.notificationsEnabled,
-      isPremium: premium,
-      customFastHours: state.customFastHours,
-      customEatHours: state.customEatHours,
-    );
-    StorageService.saveSettings(state);
-  }
+  void toggleNotifications() =>
+      _save(_copyWith(notificationsEnabled: !state.notificationsEnabled));
+
+  void setCustomHours(int fastHours, int eatHours) =>
+      _save(_copyWith(customFastHours: fastHours, customEatHours: eatHours));
+
+  void setPremium(bool premium) =>
+      _save(_copyWith(isPremium: premium));
+
+  void acceptDisclaimer() =>
+      _save(_copyWith(hasAcceptedDisclaimer: true));
+
+  void toggleRamadanMode() =>
+      _save(_copyWith(ramadanModeEnabled: !state.ramadanModeEnabled));
+
+  void setFastingGoal(String goal) =>
+      _save(_copyWith(fastingGoal: goal));
+
+  void toggleMetabolicPhases() =>
+      _save(_copyWith(showMetabolicPhases: !state.showMetabolicPhases));
+
+  void toggleMilestoneNotifications() =>
+      _save(_copyWith(milestoneNotifications: !state.milestoneNotifications));
 }
 
 final settingsProvider =
