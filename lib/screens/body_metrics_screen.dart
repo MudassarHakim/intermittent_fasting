@@ -14,16 +14,20 @@ class BodyMetricsScreen extends ConsumerWidget {
     final metricsState = ref.watch(bodyMetricsProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Body Metrics'),
+      ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
             // ─── Header ─────────────────────────────────────
-            Text(
-              'Body Metrics',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            const SizedBox(height: 4),
             Text(
               'Track your progress',
               style: Theme.of(context).textTheme.bodyLarge,

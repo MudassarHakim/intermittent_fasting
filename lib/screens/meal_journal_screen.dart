@@ -63,16 +63,20 @@ class _MealJournalScreenState extends ConsumerState<MealJournalScreen> {
         .toList();
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Meal Journal'),
+      ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
             // ─── Header ─────────────────────────────────────
-            Text(
-              'Meal Journal',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            const SizedBox(height: 4),
             Text(
               'Log your post-fast meals',
               style: Theme.of(context).textTheme.bodyLarge,
