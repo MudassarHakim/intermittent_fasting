@@ -57,7 +57,10 @@ class MetabolicTimeline extends StatelessWidget {
           const SizedBox(height: 12),
           _TimelineLabels(maxHours: maxHours),
           const SizedBox(height: 20),
-          _CurrentPhaseInfo(phase: currentPhase),
+          _AllPhasesInfo(
+            currentPhase: currentPhase,
+            maxHours: maxHours,
+          ),
         ],
       ),
     );
@@ -242,62 +245,192 @@ class _TimelineLabels extends StatelessWidget {
   }
 }
 
-// ─── Current Phase Info ───────────────────────────────────────
+// ─── All Phases Info ──────────────────────────────────────────
 
-class _CurrentPhaseInfo extends StatelessWidget {
-  final MetabolicPhase phase;
+class _AllPhasesInfo extends StatelessWidget {
+  final MetabolicPhase currentPhase;
+  final double maxHours;
 
-  const _CurrentPhaseInfo({required this.phase});
+  const _AllPhasesInfo({
+    required this.currentPhase,
+    required this.maxHours,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: phase.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: phase.color.withValues(alpha: 0.2),
+    final currentIndex = MetabolicPhases.phases.indexOf(currentPhase);
+    final visiblePhases = MetabolicPhases.phases
+        .where((p) => p.startHour < maxHours)
+        .toList();
+
+    return Column(
+      children: visiblePhases.asMap().entries.map((entry) {
+        final index = MetabolicPhases.phases.indexOf(entry.value);
+        final phase = entry.value;
+        final isCurrent = index == currentIndex;
+        final isPast = index < currentIndex;
+        final isFuture = index > currentIndex;
+        final isLast = entry.key == visiblePhases.length - 1;
+
+        return _PhaseCard(
+          phase: phase,
+          isCurrent: isCurrent,
+          isPast: isPast,
+          isFuture: isFuture,
+          isLast: isLast,
+        );
+      }).toList(),
+    );
+  }
+}
+
+// ─── Phase Card ───────────────────────────────────────────────
+
+class _PhaseCard extends StatelessWidget {
+  final MetabolicPhase phase;
+  final bool isCurrent;
+  final bool isPast;
+  final bool isFuture;
+  final bool isLast;
+
+  const _PhaseCard({
+    required this.phase,
+    required this.isCurrent,
+    required this.isPast,
+    required this.isFuture,
+    required this.isLast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double opacity = isCurrent ? 1.0 : (isPast ? 0.5 : 0.7);
+    final Color phaseColor =
+        isCurrent ? phase.color : phase.color.withValues(alpha: opacity);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isCurrent
+              ? phase.color.withValues(alpha: 0.1)
+              : AppTheme.surfaceLight.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isCurrent
+                ? phase.color.withValues(alpha: 0.3)
+                : AppTheme.textMuted.withValues(alpha: 0.08),
+            width: isCurrent ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: phaseColor.withValues(alpha: isCurrent ? 0.15 : 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                isPast ? Icons.check_circle_rounded : phase.icon,
+                size: 20,
+                color: phaseColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          phase.name,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: phaseColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ),
+                      _StatusBadge(
+                        isCurrent: isCurrent,
+                        isPast: isPast,
+                        color: phaseColor,
+                        startHour: phase.startHour,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    phase.description,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: isCurrent
+                              ? AppTheme.textSecondary
+                              : AppTheme.textMuted,
+                          height: 1.4,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: phase.color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              phase.icon,
-              size: 20,
-              color: phase.color,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  phase.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: phase.color,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  phase.description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                        height: 1.4,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    );
+  }
+}
+
+// ─── Status Badge ─────────────────────────────────────────────
+
+class _StatusBadge extends StatelessWidget {
+  final bool isCurrent;
+  final bool isPast;
+  final Color color;
+  final int startHour;
+
+  const _StatusBadge({
+    required this.isCurrent,
+    required this.isPast,
+    required this.color,
+    required this.startHour,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String label;
+    Color bgColor;
+    Color textColor;
+
+    if (isCurrent) {
+      label = 'ACTIVE';
+      bgColor = color.withValues(alpha: 0.15);
+      textColor = color;
+    } else if (isPast) {
+      label = 'DONE';
+      bgColor = AppTheme.success.withValues(alpha: 0.1);
+      textColor = AppTheme.success.withValues(alpha: 0.6);
+    } else {
+      label = '${startHour}h+';
+      bgColor = AppTheme.textMuted.withValues(alpha: 0.08);
+      textColor = AppTheme.textMuted;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }
