@@ -241,7 +241,7 @@ class SettingsScreen extends ConsumerWidget {
                 color: AppTheme.textMuted,
               ),
               onTap: () {
-                // Open privacy policy
+                _launchUrl('https://www.freeprivacypolicy.com/live/generic');
               },
             ),
             const SizedBox(height: 8),
@@ -250,12 +250,15 @@ class SettingsScreen extends ConsumerWidget {
               title: 'Rate the App',
               subtitle: 'Help us with a review!',
               trailing: const Icon(
-                Icons.open_in_new_rounded,
-                size: 18,
+                Icons.chevron_right_rounded,
                 color: AppTheme.textMuted,
               ),
               onTap: () {
-                // Open store listing
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Coming soon! App store listing not available yet.'),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 24),
