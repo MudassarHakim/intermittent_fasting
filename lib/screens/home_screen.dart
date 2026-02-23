@@ -129,10 +129,10 @@ class HomeScreen extends ConsumerWidget {
               ),
 
             // ─── Daily Insight ───────────────────────────────
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-                child: InsightCard(),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: InsightCard(goal: settings.fastingGoal),
               ),
             ),
 

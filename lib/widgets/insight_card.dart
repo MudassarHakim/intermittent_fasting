@@ -3,11 +3,13 @@ import '../app/theme.dart';
 import '../core/fasting_insights.dart';
 
 class InsightCard extends StatelessWidget {
-  const InsightCard({super.key});
+  final String? goal;
+
+  const InsightCard({super.key, this.goal});
 
   @override
   Widget build(BuildContext context) {
-    final insight = FastingInsights.getInsightOfTheDay();
+    final insight = FastingInsights.getInsightOfTheDay(goal: goal);
 
     return Container(
       padding: const EdgeInsets.all(16),

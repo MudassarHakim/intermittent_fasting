@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/fasting_plan.dart';
 import '../models/fasting_session.dart';
 import '../core/utils.dart';
+import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import 'history_provider.dart';
+import 'settings_provider.dart';
 
 // ─── Timer State ──────────────────────────────────────────────
 class TimerState {
@@ -81,6 +83,14 @@ class TimerNotifier extends StateNotifier<TimerState> {
 
     StorageService.saveActiveSession(session);
 
+    final settings = _ref.read(settingsProvider);
+    if (settings.notificationsEnabled) {
+      NotificationService.scheduleFastComplete(
+        completionTime: session.targetEndTime,
+        planName: session.planName,
+      );
+    }
+
     state = TimerState(
       activeSession: session,
       isRunning: true,
@@ -137,6 +147,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
     final session = state.activeSession;
     if (session == null) return;
 
+    NotificationService.cancelAll();
     session.cancel();
     StorageService.clearActiveSession();
     _ref.read(historyProvider.notifier).addSession(session);

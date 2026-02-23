@@ -12,6 +12,7 @@ import '../providers/history_provider.dart';
 import '../widgets/circular_progress.dart';
 import '../widgets/fasting_share_card.dart';
 import '../core/metabolic_phases.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/metabolic_timeline.dart';
 
 class TimerScreen extends ConsumerStatefulWidget {
@@ -69,6 +70,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
             else if (timerState.isRunning)
               _ActiveTimerView(
                 timerState: timerState,
+                showMetabolicPhases: ref.watch(settingsProvider).showMetabolicPhases,
                 onCancel: () => _showCancelDialog(context, ref),
               )
             else
@@ -169,10 +171,12 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
 // ─── Active Timer View ────────────────────────────────────────
 class _ActiveTimerView extends StatelessWidget {
   final TimerState timerState;
+  final bool showMetabolicPhases;
   final VoidCallback onCancel;
 
   const _ActiveTimerView({
     required this.timerState,
+    required this.showMetabolicPhases,
     required this.onCancel,
   });
 
@@ -250,34 +254,36 @@ class _ActiveTimerView extends StatelessWidget {
                         color: AppTheme.textMuted,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: phase.color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            phase.icon,
-                            size: 14,
-                            color: phase.color,
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            phase.name,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                    if (showMetabolicPhases) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: phase.color.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              phase.icon,
+                              size: 14,
                               color: phase.color,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 5),
+                            Text(
+                              phase.name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: phase.color,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 );
               },
@@ -296,11 +302,13 @@ class _ActiveTimerView extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ─── Metabolic Timeline ─────────────────────────
-          MetabolicTimeline(
-            elapsed: timerState.elapsed,
-            targetHours: session.fastHours,
-          ),
-          const SizedBox(height: 32),
+          if (showMetabolicPhases) ...[
+            MetabolicTimeline(
+              elapsed: timerState.elapsed,
+              targetHours: session.fastHours,
+            ),
+            const SizedBox(height: 32),
+          ],
 
           // End Fast button
           OutlinedButton.icon(
