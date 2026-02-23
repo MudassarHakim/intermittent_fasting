@@ -57,12 +57,13 @@ class CircularProgress extends StatelessWidget {
             tween: Tween(begin: 0, end: progress),
             duration: const Duration(milliseconds: 600),
             builder: (context, value, _) {
+              final glowColor = gradientColors?.first ?? AppTheme.primary;
               return CustomPaint(
                 size: Size(size, size),
                 painter: _GlowPainter(
                   progress: value,
                   strokeWidth: strokeWidth,
-                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  color: glowColor.withValues(alpha: 0.3),
                 ),
               );
             },

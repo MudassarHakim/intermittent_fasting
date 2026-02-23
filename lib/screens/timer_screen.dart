@@ -227,18 +227,25 @@ class _ActiveTimerView extends StatelessWidget {
           const SizedBox(height: 32),
 
           // Circular progress
-          CircularProgress(
-            progress: timerState.progress,
-            size: 240,
-            strokeWidth: 14,
-            gradientColors: const [
-              AppTheme.primary,
-              AppTheme.accent,
-              AppTheme.secondary,
-            ],
-            child: Builder(
-              builder: (context) {
-                final phase = MetabolicPhases.getCurrentPhase(timerState.elapsed);
+          Builder(
+            builder: (context) {
+              final phase = MetabolicPhases.getCurrentPhase(timerState.elapsed);
+              final phaseIndex = MetabolicPhases.phases.indexOf(phase);
+              final nextPhase = phaseIndex < MetabolicPhases.phases.length - 1
+                  ? MetabolicPhases.phases[phaseIndex + 1]
+                  : phase;
+              
+              return CircularProgress(
+                progress: timerState.progress,
+                size: 240,
+                strokeWidth: 14,
+                gradientColors: [
+                  phase.color,
+                  Color.lerp(phase.color, nextPhase.color, 0.5)!,
+                  nextPhase.color,
+                ],
+                child: Builder(
+                  builder: (context) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -291,8 +298,10 @@ class _ActiveTimerView extends StatelessWidget {
                     ],
                   ],
                 );
-              },
-            ),
+                  },
+                ),
+              );
+            },
           ),
           const SizedBox(height: 24),
 
