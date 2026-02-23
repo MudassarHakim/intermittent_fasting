@@ -11,6 +11,7 @@ import '../providers/timer_provider.dart';
 import '../providers/history_provider.dart';
 import '../widgets/circular_progress.dart';
 import '../widgets/fasting_share_card.dart';
+import '../core/metabolic_phases.dart';
 import '../widgets/metabolic_timeline.dart';
 
 class TimerScreen extends ConsumerStatefulWidget {
@@ -226,27 +227,60 @@ class _ActiveTimerView extends StatelessWidget {
               AppTheme.accent,
               AppTheme.secondary,
             ],
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppUtils.formatDuration(timerState.remaining),
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
-                    letterSpacing: 2,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'remaining',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ],
+            child: Builder(
+              builder: (context) {
+                final phase = MetabolicPhases.getCurrentPhase(timerState.elapsed);
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppUtils.formatDuration(timerState.remaining),
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textPrimary,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'remaining',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: phase.color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            phase.icon,
+                            size: 14,
+                            color: phase.color,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            phase.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: phase.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 24),
