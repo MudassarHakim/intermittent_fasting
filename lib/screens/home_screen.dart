@@ -208,7 +208,6 @@ class HomeScreen extends ConsumerWidget {
                     (context, index) {
                       final plan = AppConstants.fastingPlans[index];
                       final isSelected = plan.id == settings.selectedPlanId;
-                      final isLocked = plan.isPremium && !settings.isPremium;
                       final isRecommended = AppConstants.isPlanRecommendedForGoal(
                         plan.id,
                         settings.fastingGoal,
@@ -219,13 +218,9 @@ class HomeScreen extends ConsumerWidget {
                         child: PlanCard(
                           plan: plan,
                           isSelected: isSelected,
-                          isLocked: isLocked,
+                          isLocked: false,
                           isRecommended: isRecommended,
                           onTap: () {
-                            if (isLocked) {
-                              _showPremiumDialog(context);
-                              return;
-                            }
                             ref.read(settingsProvider.notifier).updatePlan(plan.id);
                           },
                         ),
@@ -299,33 +294,6 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _showPremiumDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('🔒 Premium Plan'),
-        content: const Text(
-          'Unlock advanced fasting plans, detailed stats, widgets, and remove ads with Premium.',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe Later'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // IAP integration placeholder
-            },
-            child: const Text('Upgrade'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _StartFastButton extends StatelessWidget {

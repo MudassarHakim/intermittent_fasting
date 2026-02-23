@@ -30,79 +30,6 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 28),
 
-            // ─── Premium Banner ────────────────────────────
-            if (!settings.isPremium)
-              Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFFFF6B9D)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Text('👑', style: TextStyle(fontSize: 28)),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Upgrade to Premium',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'Unlock all plans, stats & widgets',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // IAP placeholder
-                          _showIAPDialog(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppTheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        child: const Text(
-                          'View Plans',
-                          style: TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
             // ─── Preferences ───────────────────────────────
             const _SectionTitle(title: 'Preferences'),
             const SizedBox(height: 12),
@@ -118,37 +45,6 @@ class SettingsScreen extends ConsumerWidget {
                 },
                 activeThumbColor: AppTheme.primary,
               ),
-            ),
-            const SizedBox(height: 8),
-
-            // ─── Rewarded Ad Placeholder ────────────────────
-            _SettingsTile(
-              icon: Icons.play_circle_filled_rounded,
-              title: 'Watch Ad to Unlock Plan',
-              subtitle: 'Get free access to one premium plan',
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'FREE',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.success,
-                  ),
-                ),
-              ),
-              onTap: () {
-                // Rewarded ad placeholder
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Rewarded ad placeholder — would show ad here'),
-                  ),
-                );
-              },
             ),
             const SizedBox(height: 24),
 
@@ -362,65 +258,9 @@ class SettingsScreen extends ConsumerWidget {
                 // Open store listing
               },
             ),
-            const SizedBox(height: 40),
-
-            // Remove Ads button
-            if (!settings.isPremium)
-              OutlinedButton.icon(
-                onPressed: () => _showIAPDialog(context),
-                icon: const Icon(Icons.block_rounded),
-                label: const Text('Remove Ads'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.textSecondary,
-                  side: BorderSide(color: AppTheme.textMuted.withValues(alpha: 0.2)),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
             const SizedBox(height: 24),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showIAPDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('👑 Premium Plans'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _IAPOption(
-              title: 'Monthly',
-              price: '\$2.99/mo',
-              isPopular: false,
-            ),
-            SizedBox(height: 8),
-            _IAPOption(
-              title: 'Yearly',
-              price: '\$19.99/yr',
-              isPopular: true,
-            ),
-            SizedBox(height: 8),
-            _IAPOption(
-              title: 'Lifetime',
-              price: '\$49.99',
-              isPopular: false,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
       ),
     );
   }
@@ -550,87 +390,6 @@ class _SettingsTile extends StatelessWidget {
             trailing,
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── IAP Option ───────────────────────────────────────────────
-class _IAPOption extends StatelessWidget {
-  final String title;
-  final String price;
-  final bool isPopular;
-
-  const _IAPOption({
-    required this.title,
-    required this.price,
-    required this.isPopular,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isPopular
-            ? AppTheme.primary.withValues(alpha: 0.1)
-            : AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isPopular
-              ? AppTheme.primary.withValues(alpha: 0.4)
-              : AppTheme.textMuted.withValues(alpha: 0.1),
-          width: isPopular ? 1.5 : 1,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  if (isPopular) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'BEST VALUE',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-          Text(
-            price,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: isPopular ? AppTheme.primary : AppTheme.textSecondary,
-            ),
-          ),
-        ],
       ),
     );
   }
