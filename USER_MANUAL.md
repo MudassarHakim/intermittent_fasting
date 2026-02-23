@@ -207,8 +207,28 @@ A placeholder tile for a future rewarded ad integration. Tapping it shows a snac
 
 | State | Effect |
 |-------|--------|
-| **OFF** (default) | Standard fasting plans based on hour durations (16:8, 18:6, etc.). |
-| **ON** | Enables Ramadan mode. This setting is persisted and flags the user's preference for sunrise/sunset-based fasting windows. The setting is ready for integration with location-based prayer time APIs for automatic Suhoor/Iftar window calculation. |
+| **OFF** (default) | Standard fasting plans based on hour durations (16:8, 18:6, etc.). The Home Screen shows the plan selection cards. |
+| **ON** | Enables Ramadan mode with location-based prayer time calculations. |
+
+**What happens when you turn Ramadan Mode ON:**
+
+1. **Location Permission:** The app requests location permission to calculate accurate Fajr (pre-dawn) and Maghrib (sunset) times for your area.
+2. **Prayer Time Calculation:** Uses the Adhan library with Muslim World League calculation method to determine exact Suhoor end (Fajr) and Iftar start (Maghrib) times.
+3. **Home Screen Changes:**
+   - The plan selection cards are **hidden**.
+   - A **Ramadan Mode Banner** appears showing:
+     - 🌙 "Ramadan Mode Active" header
+     - Suhoor End time (Fajr)
+     - Iftar Start time (Maghrib)
+     - Fasting duration (typically 12-18 hours depending on location and season)
+   - The "Start Fasting" button changes to "Start Ramadan Fast" with a mosque icon and blue/navy gradient.
+4. **Settings Screen Changes:**
+   - The Ramadan Mode tile expands to show Suhoor, Iftar, and duration times.
+5. **Timer Behavior:**
+   - When you start a Ramadan fast, the timer uses the calculated Fajr-to-Maghrib duration instead of a fixed hour plan.
+   - The session is labeled "Ramadan" in history.
+
+**Location Privacy:** Your location is only used locally on-device to calculate prayer times. It is not transmitted to any server.
 
 ---
 

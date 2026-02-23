@@ -3,6 +3,16 @@ import '../models/fasting_plan.dart';
 class AppConstants {
   AppConstants._();
 
+  static const FastingPlan ramadanPlan = FastingPlan(
+    id: 'ramadan',
+    name: 'Ramadan Fast',
+    shortName: 'Ramadan',
+    fastHours: 14,
+    eatHours: 10,
+    description: 'Fajr to Maghrib. Times calculated based on your location.',
+    emoji: '🌙',
+  );
+
   static const List<FastingPlan> fastingPlans = [
     FastingPlan(
       id: '12_12',

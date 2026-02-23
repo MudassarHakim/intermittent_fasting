@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../app/theme.dart';
+import '../providers/ramadan_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/history_provider.dart';
 
@@ -184,17 +185,23 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
 
-            _SettingsTile(
-              icon: Icons.mosque_rounded,
-              title: 'Ramadan Mode',
-              subtitle: 'Auto-calculate fasting windows with sunrise/sunset',
-              trailing: Switch(
-                value: settings.ramadanModeEnabled,
-                onChanged: (_) {
-                  ref.read(settingsProvider.notifier).toggleRamadanMode();
-                },
-                activeThumbColor: AppTheme.primary,
-              ),
+            _RamadanModeTile(
+              isEnabled: settings.ramadanModeEnabled,
+              onToggle: () async {
+                if (!settings.ramadanModeEnabled) {
+                  await ref.read(ramadanProvider.notifier).loadTimes();
+                  final state = ref.read(ramadanProvider);
+                  if (state.error != null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.error!)),
+                      );
+                    }
+                    return;
+                  }
+                }
+                ref.read(settingsProvider.notifier).toggleRamadanMode();
+              },
             ),
             const SizedBox(height: 24),
 
@@ -685,6 +692,185 @@ class _GoalSelector extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ─── Ramadan Mode Tile ────────────────────────────────────────
+class _RamadanModeTile extends ConsumerWidget {
+  final bool isEnabled;
+  final VoidCallback onToggle;
+
+  const _RamadanModeTile({
+    required this.isEnabled,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ramadanState = ref.watch(ramadanProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: isEnabled
+            ? Border.all(color: AppTheme.primary.withValues(alpha: 0.3))
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isEnabled
+                      ? AppTheme.primary.withValues(alpha: 0.12)
+                      : AppTheme.textMuted.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.mosque_rounded,
+                  color: isEnabled ? AppTheme.primary : AppTheme.textMuted,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Ramadan Mode',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isEnabled
+                          ? 'Fajr to Maghrib based on location'
+                          : 'Auto-calculate fasting windows',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (ramadanState.isLoading)
+                const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Switch(
+                  value: isEnabled,
+                  onChanged: (_) => onToggle(),
+                  activeThumbColor: AppTheme.primary,
+                ),
+            ],
+          ),
+          if (isEnabled && ramadanState.times != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _TimeColumn(
+                      label: 'Suhoor Ends',
+                      time: _formatTime(ramadanState.times!.suhoorEnd),
+                      icon: Icons.wb_twilight_rounded,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: AppTheme.textMuted.withValues(alpha: 0.2),
+                  ),
+                  Expanded(
+                    child: _TimeColumn(
+                      label: 'Iftar Starts',
+                      time: _formatTime(ramadanState.times!.iftarStart),
+                      icon: Icons.nights_stay_rounded,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: AppTheme.textMuted.withValues(alpha: 0.2),
+                  ),
+                  Expanded(
+                    child: _TimeColumn(
+                      label: 'Duration',
+                      time: '${ramadanState.times!.fastingDuration.inHours}h ${ramadanState.times!.fastingDuration.inMinutes.remainder(60)}m',
+                      icon: Icons.timer_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final hour = time.hour;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    return '$displayHour:$minute $period';
+  }
+}
+
+class _TimeColumn extends StatelessWidget {
+  final String label;
+  final String time;
+  final IconData icon;
+
+  const _TimeColumn({
+    required this.label,
+    required this.time,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 18, color: AppTheme.primary),
+        const SizedBox(height: 4),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: AppTheme.textMuted,
+          ),
+        ),
+      ],
     );
   }
 }
