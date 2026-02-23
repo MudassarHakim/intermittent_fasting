@@ -227,7 +227,7 @@ class SettingsScreen extends ConsumerWidget {
                 color: AppTheme.textMuted,
               ),
               onTap: () {
-                _launchUrl('https://mudassarhakim.com');
+                _launchUrl('https://mudassarhakim.com', context);
               },
             ),
             const SizedBox(height: 8),
@@ -241,7 +241,7 @@ class SettingsScreen extends ConsumerWidget {
                 color: AppTheme.textMuted,
               ),
               onTap: () {
-                _launchUrl('https://www.freeprivacypolicy.com/live/generic');
+                _launchUrl('https://www.freeprivacypolicy.com/live/generic', context);
               },
             ),
             const SizedBox(height: 8),
@@ -268,10 +268,21 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _launchUrl(String url) async {
+  Future<void> _launchUrl(String url, BuildContext context) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open $url')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening link: $e')),
+        );
+      }
     }
   }
 
