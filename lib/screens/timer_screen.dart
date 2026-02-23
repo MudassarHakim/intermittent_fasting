@@ -11,6 +11,7 @@ import '../providers/timer_provider.dart';
 import '../providers/history_provider.dart';
 import '../widgets/circular_progress.dart';
 import '../widgets/fasting_share_card.dart';
+import '../core/constants.dart';
 import '../core/metabolic_phases.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/metabolic_timeline.dart';
@@ -71,6 +72,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
               _ActiveTimerView(
                 timerState: timerState,
                 showMetabolicPhases: ref.watch(settingsProvider).showMetabolicPhases,
+                fastingGoal: ref.watch(settingsProvider).fastingGoal,
                 onCancel: () => _showCancelDialog(context, ref),
               )
             else
@@ -172,11 +174,13 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
 class _ActiveTimerView extends StatelessWidget {
   final TimerState timerState;
   final bool showMetabolicPhases;
+  final String fastingGoal;
   final VoidCallback onCancel;
 
   const _ActiveTimerView({
     required this.timerState,
     required this.showMetabolicPhases,
+    required this.fastingGoal,
     required this.onCancel,
   });
 
@@ -307,8 +311,62 @@ class _ActiveTimerView extends StatelessWidget {
               elapsed: timerState.elapsed,
               targetHours: session.fastHours,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
           ],
+
+          // ─── Goal Tip ───────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceCard,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppTheme.textMuted.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    _getGoalIcon(fastingGoal),
+                    size: 18,
+                    color: AppTheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGoalLabel(fastingGoal),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        AppConstants.goalTimerTips[fastingGoal] ?? '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
 
           // End Fast button
           OutlinedButton.icon(
@@ -328,6 +386,28 @@ class _ActiveTimerView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  IconData _getGoalIcon(String goal) {
+    switch (goal) {
+      case 'fat_loss':
+        return Icons.whatshot_rounded;
+      case 'autophagy':
+        return Icons.auto_fix_high_rounded;
+      default:
+        return Icons.favorite_rounded;
+    }
+  }
+
+  String _getGoalLabel(String goal) {
+    switch (goal) {
+      case 'fat_loss':
+        return 'FAT LOSS TIP';
+      case 'autophagy':
+        return 'AUTOPHAGY TIP';
+      default:
+        return 'HEALTH TIP';
+    }
   }
 }
 

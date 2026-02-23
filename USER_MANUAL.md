@@ -234,17 +234,28 @@ A placeholder tile for a future rewarded ad integration. Tapping it shows a snac
 
 ### 6.3 Fasting Goal
 
-A 3-option selector that personalizes your experience:
+A 3-option selector that personalizes your entire fasting experience:
 
-| Goal | Icon | Effect on Insight Card | Recommended Plans |
-|------|------|----------------------|-------------------|
-| **Fat Loss** | 🔥 | Shows insights focused on fat oxidation, lean mass preservation, metabolic rate, and evening activity. | 16:8, 18:6, 20:4 |
-| **Metabolic Health** (default) | ❤️ | Shows insights on insulin sensitivity, lipid profiles, cardiovascular health, and circadian rhythm. | 12:12, 16:8 |
-| **Autophagy** | ✨ | Shows insights on cellular maintenance, inflammation reduction, and circadian rhythm. | 20:4, OMAD |
+| Goal | Icon | Recommended Plans | Timer Tip |
+|------|------|-------------------|-----------|
+| **Fat Loss** | 🔥 | 16:8, 18:6, 20:4 | "Your body typically enters peak fat-burning mode around 12-14 hours." |
+| **Metabolic Health** (default) | ❤️ | 12:12, 16:8 | "Consistent fasting windows help stabilize blood sugar and hormones." |
+| **Autophagy** | ✨ | 18:6, 20:4, OMAD | "Autophagy processes may increase significantly after 18+ hours." |
 
-**How it works:** The daily Insight Card on the Home Screen filters the pool of 15 research-backed insights to show only those tagged with your selected goal. The insight still rotates daily, but from the goal-relevant subset.
+**What changes when you select a goal:**
 
-**Changing your goal:** Tap a different option. The change is saved immediately. The next time you visit the Home Screen, the insight card will reflect your new goal.
+1. **Home Screen — Insight Card:** Filters daily insights to show goal-relevant content from the 15 research-backed insights.
+
+2. **Home Screen — Goal Recommendation Banner:** A tip banner appears above the plan cards explaining why certain fasts work better for your goal:
+   - Fat Loss: "Longer fasts (16h+) maximize fat oxidation and preserve lean mass."
+   - Metabolic Health: "Moderate fasts improve insulin sensitivity and metabolic markers."
+   - Autophagy: "Extended fasts (18h+) may enhance cellular cleanup processes."
+
+3. **Home Screen — Plan Cards:** Plans matching your goal show a green "FOR YOU" badge to help you choose the right protocol.
+
+4. **Timer Screen — Goal Tip:** A tip card appears showing goal-specific guidance while your fast is running (e.g., when to expect peak fat-burning, or when autophagy may increase).
+
+**Changing your goal:** Tap a different option. All changes apply immediately across the app.
 
 ---
 

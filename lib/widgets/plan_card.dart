@@ -7,6 +7,7 @@ class PlanCard extends StatelessWidget {
   final FastingPlan plan;
   final bool isSelected;
   final bool isLocked;
+  final bool isRecommended;
   final VoidCallback onTap;
 
   const PlanCard({
@@ -15,6 +16,7 @@ class PlanCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.isLocked = false,
+    this.isRecommended = false,
   });
 
   @override
@@ -86,6 +88,35 @@ class PlanCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                    if (isRecommended && !isLocked)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.success.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              size: 14,
+                              color: AppTheme.success,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'FOR YOU',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (isLocked)
                       Container(
                         padding: const EdgeInsets.symmetric(

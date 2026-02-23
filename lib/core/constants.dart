@@ -79,4 +79,26 @@ class AppConstants {
       orElse: () => fastingPlans[1], // default 16:8
     );
   }
+
+  static const Map<String, List<String>> goalRecommendedPlans = {
+    'fat_loss': ['16_8', '18_6', '20_4'],
+    'metabolic_health': ['12_12', '16_8'],
+    'autophagy': ['18_6', '20_4', '23_1'],
+  };
+
+  static const Map<String, String> goalDescriptions = {
+    'fat_loss': 'Longer fasts (16h+) maximize fat oxidation and preserve lean mass.',
+    'metabolic_health': 'Moderate fasts improve insulin sensitivity and metabolic markers.',
+    'autophagy': 'Extended fasts (18h+) may enhance cellular cleanup processes.',
+  };
+
+  static const Map<String, String> goalTimerTips = {
+    'fat_loss': 'Your body typically enters peak fat-burning mode around 12-14 hours.',
+    'metabolic_health': 'Consistent fasting windows help stabilize blood sugar and hormones.',
+    'autophagy': 'Autophagy processes may increase significantly after 18+ hours.',
+  };
+
+  static bool isPlanRecommendedForGoal(String planId, String goal) {
+    return goalRecommendedPlans[goal]?.contains(planId) ?? false;
+  }
 }

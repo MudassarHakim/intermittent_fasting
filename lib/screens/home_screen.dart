@@ -160,6 +160,45 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
 
+            // ─── Goal Recommendation Banner ────────────────
+            if (!settings.ramadanModeEnabled)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.success.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.success.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.tips_and_updates_rounded,
+                          size: 18,
+                          color: AppTheme.success.withValues(alpha: 0.8),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            AppConstants.goalDescriptions[settings.fastingGoal] ??
+                                '',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppTheme.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
             // ─── Plan Cards ─────────────────────────────────
             if (!settings.ramadanModeEnabled)
               SliverPadding(
@@ -170,6 +209,10 @@ class HomeScreen extends ConsumerWidget {
                       final plan = AppConstants.fastingPlans[index];
                       final isSelected = plan.id == settings.selectedPlanId;
                       final isLocked = plan.isPremium && !settings.isPremium;
+                      final isRecommended = AppConstants.isPlanRecommendedForGoal(
+                        plan.id,
+                        settings.fastingGoal,
+                      );
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -177,6 +220,7 @@ class HomeScreen extends ConsumerWidget {
                           plan: plan,
                           isSelected: isSelected,
                           isLocked: isLocked,
+                          isRecommended: isRecommended,
                           onTap: () {
                             if (isLocked) {
                               _showPremiumDialog(context);
