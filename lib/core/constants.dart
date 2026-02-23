@@ -49,7 +49,6 @@ class AppConstants {
       eatHours: 4,
       description: 'Advanced. Maximise fat-burning with a 4-hour eating window.',
       emoji: '⚔️',
-      isPremium: true,
     ),
     FastingPlan(
       id: '23_1',
@@ -59,7 +58,6 @@ class AppConstants {
       eatHours: 1,
       description: 'One Meal A Day. Maximum benefits for experienced fasters.',
       emoji: '🏆',
-      isPremium: true,
     ),
     FastingPlan(
       id: 'custom',
@@ -69,7 +67,6 @@ class AppConstants {
       eatHours: 8,
       description: 'Set your own fasting and eating windows.',
       emoji: '🎯',
-      isPremium: true,
     ),
   ];
 

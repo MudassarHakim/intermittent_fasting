@@ -24,6 +24,9 @@ dependencies:
   confetti: ^0.8.0
   geolocator: ^13.0.2
   adhan: ^2.0.0
+  supabase_flutter: ^2.8.0
+  country_picker: ^2.0.26
+  url_launcher: ^6.3.0
 
   timezone: any
 dev_dependencies:

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../screens/body_metrics_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/meal_journal_screen.dart';
+import '../screens/registration_screen.dart';
 import '../screens/timer_screen.dart';
 import '../screens/history_screen.dart';
 import '../screens/settings_screen.dart';
@@ -54,6 +55,11 @@ final router = GoRouter(
       path: '/meal-journal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const MealJournalScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const RegistrationScreen(),
     ),
   ],
 );

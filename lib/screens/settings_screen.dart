@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../app/theme.dart';
 import '../providers/ramadan_provider.dart';
 import '../providers/settings_provider.dart';
@@ -321,6 +322,20 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             _SettingsTile(
+              icon: Icons.code_rounded,
+              title: 'Created by Mudassar Hakim',
+              subtitle: 'mudassarhakim.com',
+              trailing: const Icon(
+                Icons.open_in_new_rounded,
+                size: 18,
+                color: AppTheme.textMuted,
+              ),
+              onTap: () {
+                _launchUrl('https://mudassarhakim.com');
+              },
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy Policy',
               subtitle: 'How we handle your data',
@@ -408,6 +423,13 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   void _showClearDialog(BuildContext context, WidgetRef ref) {
