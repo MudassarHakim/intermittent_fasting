@@ -243,11 +243,24 @@ class HomeScreen extends ConsumerWidget {
                 child: _StartFastButton(
                   isActive: timerState.isRunning,
                   isRamadanMode: settings.ramadanModeEnabled,
-                  onPressed: () {
+                  onPressed: () async {
                     if (timerState.isRunning) {
                       context.go('/timer');
                     } else if (settings.ramadanModeEnabled) {
-                      final ramadanState = ref.read(ramadanProvider);
+                      var ramadanState = ref.read(ramadanProvider);
+                      
+                      // Load times if not already loaded
+                      if (ramadanState.times == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Getting prayer times for your location...'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        await ref.read(ramadanProvider.notifier).loadTimes();
+                        ramadanState = ref.read(ramadanProvider);
+                      }
+                      
                       if (ramadanState.times != null) {
                         final times = ramadanState.times!;
                         final ramadanPlan = FastingPlan(
@@ -260,14 +273,16 @@ class HomeScreen extends ConsumerWidget {
                           emoji: '🌙',
                         );
                         ref.read(timerProvider.notifier).startFast(ramadanPlan);
-                        context.go('/timer');
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Loading prayer times... Please wait.'),
-                          ),
-                        );
-                        ref.read(ramadanProvider.notifier).loadTimes();
+                        if (context.mounted) context.go('/timer');
+                      } else if (ramadanState.error != null) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(ramadanState.error!),
+                              backgroundColor: AppTheme.error,
+                            ),
+                          );
+                        }
                       }
                     } else {
                       final plan = AppConstants.getPlanById(settings.selectedPlanId);
